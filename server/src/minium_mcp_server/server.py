@@ -67,7 +67,7 @@ async def main(project_path: str):
             ),
             types.Tool(
                 name="go_home",
-                description="Go Home Page",
+                description="Go to the home page",
                 inputSchema={
                     "type": "object",
                     "properties": {},
@@ -190,7 +190,7 @@ async def main(project_path: str):
             ),
             types.Tool(
                 name="move",
-                description="TouchMove on an element",
+                description="Perform gestures on the element",
                 inputSchema={
                     "type": "object",
                     "properties": {
@@ -203,7 +203,7 @@ async def main(project_path: str):
             ),
             types.Tool(
                 name="input",
-                description="Input text to an form element",
+                description="Input text to an element",
                 inputSchema={
                     "type": "object",
                     "properties": {
