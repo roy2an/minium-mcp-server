@@ -3,8 +3,10 @@ import sys
 import logging
 import json
 import asyncio
+import requests
 from mcp.server import NotificationOptions, Server
 from mcp.server.models import InitializationOptions
+
 from mcp import types
 from typing import Any
 import mcp.server.stdio
@@ -16,17 +18,10 @@ if sys.platform == "win32" and os.environ.get('PYTHONIOENCODING') is None:
     sys.stderr.reconfigure(encoding="utf-8")
 
 logger = logging.getLogger('minium-mcp-server')
-logger.info("Starting Minium MCP Server")
-
-# Global connection variables
-reader = None
-writer = None
+print("Starting Minium MCP Server")
 
 async def main():
-    global reader, writer
     server = Server("minium-mcp-server")
-
-    reader, writer = await asyncio.open_connection("127.0.0.1", 8888)
 
     @server.list_tools()
     async def handle_list_tools() -> list[types.Tool]:
@@ -34,7 +29,7 @@ async def main():
         return [
             types.Tool(
                 name="open",
-                description="Open Project",
+                description="Open a project",
                 inputSchema={
                     "type": "object",
                     "properties": {
@@ -72,7 +67,7 @@ async def main():
             ),
             types.Tool(
                 name="go_home",
-                description="Go Home Page",
+                description="Go to the home page",
                 inputSchema={
                     "type": "object",
                     "properties": {},
@@ -195,7 +190,7 @@ async def main():
             ),
             types.Tool(
                 name="move",
-                description="TouchMove on an element",
+                description="Perform gestures on the element",
                 inputSchema={
                     "type": "object",
                     "properties": {
@@ -208,7 +203,7 @@ async def main():
             ),
             types.Tool(
                 name="input",
-                description="Input text to an form element",
+                description="Input text to an element",
                 inputSchema={
                     "type": "object",
                     "properties": {
@@ -255,107 +250,39 @@ async def main():
             )
         ]
 
-    async def ensure_connection():
-        """Ensure we have an active connection"""
-        global reader, writer
-        if writer is None or writer.is_closing():
-            logger.info("Reconnecting to server...")
-            reader, writer = await asyncio.open_connection("127.0.0.1", 8888)
-            logger.info("Reconnected successfully")
-
     @server.call_tool()
     async def handle_call_tool(
         name: str, arguments: dict[str, Any] | None
     ):
         """Handle tool execution requests"""
-        logger.info(f"Received call tool request: {name} with args: {arguments}")
-        command = {
-            "name": name,
-            "arguments": arguments or {}
-        }
-        
-        try:
-            await ensure_connection()
-            
-            writer.write(json.dumps(command).encode('utf-8'))
-            await writer.drain()
+        print(f"Received call tool request: {name} with args: {arguments}")
 
-            # Receive the response using the improved receive_full_response method
-            response_data = await receive_full_response(reader)
-            response = json.loads(response_data.decode('utf-8'))
-            if response.get("status") == "error":
-                logger.error(f"error: {response.get('message')}")
-                raise Exception(response.get("message", "Unknown error from Blender"))
-            
-            return [types.TextContent(type="text", text=response.get("message"))]
-        except (ConnectionError, asyncio.TimeoutError) as e:
-            logger.error(f"Connection error: {str(e)}")
-            # Attempt to reconnect and retry once
-            try:
-                await ensure_connection()
-                
-                writer.write(json.dumps(command).encode('utf-8'))
-                await writer.drain()
-                
-                response_data = await receive_full_response(reader)
-                response = json.loads(response_data.decode('utf-8'))
-                if response.get("status") == "error":
-                    logger.error(f"error: {response.get('message')}")
-                    raise Exception(response.get("message", "Unknown error from Blender"))
-                
-                return [types.TextContent(type="text", text=response.get("message"))]
-            except Exception as e:
-                logger.error(f"Failed after retry: {str(e)}")
-                raise
-
-    async def receive_full_response(reader, buffer_size=8192):
-        """Receive the complete response, potentially in multiple chunks"""
-        chunks = []
         try:
-            while True:
-                chunk = await reader.read(buffer_size)
-                if not chunk:
-                    # If we get an empty chunk, the connection might be closed
-                    if not chunks:  # If we haven't received anything yet, this is an error
-                        raise Exception("Connection closed before receiving any data")
-                    break
+            # Send HTTP request to web server
+            response = requests.post(
+                "http://127.0.0.1:9188/api/command",
+                json={
+                    "name": name,
+                    "arguments": arguments or {}
+                },
+                timeout=600000
+            )
+            
+            if response.status_code != 200:
+                raise Exception(f"HTTP error: {response.status_code}")
                 
-                chunks.append(chunk)
+            response_data = response.json()
+            if response_data.get("status") == "error":
+                raise Exception(response_data.get("message", "Unknown error"))
                 
-                # Check if we've received a complete JSON object
-                try:
-                    data = b''.join(chunks)
-                    json.loads(data.decode('utf-8'))
-                    # If we get here, it parsed successfully
-                    logger.info(f"Received complete response ({len(data)} bytes)")
-                    return data
-                except json.JSONDecodeError:
-                    # Incomplete JSON, continue receiving
-                    continue
-        except asyncio.TimeoutError:
-            logger.warning("Socket timeout during chunked receive")
+            return [types.TextContent(type="text", text=response_data.get("message"))]
+            
         except Exception as e:
-            logger.error(f"Error during receive: {str(e)}")
+            logger.error(f"Error handling tool request: {str(e)}")
             raise
-            
-        # If we get here, we either timed out or broke out of the loop
-        # Try to use what we have
-        if chunks:
-            data = b''.join(chunks)
-            logger.info(f"Returning data after receive completion ({len(data)} bytes)")
-            try:
-                # Try to parse what we have
-                json.loads(data.decode('utf-8'))
-                return data
-            except json.JSONDecodeError:
-                # If we can't parse it, it's incomplete
-                raise Exception("Incomplete JSON response received")
-        else:
-            raise Exception("No data received")
-        
 
     async with mcp.server.stdio.stdio_server() as (read_stream, write_stream):
-        logger.info("Server running with stdio transport")
+        print("Server running with stdio transport")
         await server.run(
             read_stream,
             write_stream,

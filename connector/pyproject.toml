@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "A MCP server project"
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = [ "mcp>=1.4.1", "minium"]
+dependencies = [ "mcp>=1.4.1", "minium", "flask"]
 [[project.authors]]
 name = "roy.yan"
 
