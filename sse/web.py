@@ -9,6 +9,8 @@ print("Starting Minium MCP Web Server")
 
 mini = None
 project_path = ''
+HOST = '0.0.0.0'
+PORT = 9188
 
 @app.route('/api/command', methods=['POST'])
 def handle_command():
@@ -34,6 +36,7 @@ def handle_command():
                     "dev_tool_path": dev_tool_path,
                     "debug_mode": "error"
                 })
+                mini.app.enable_log()
                 return jsonify({
                     "status": "success",
                     "message": "Started"
@@ -62,6 +65,13 @@ def handle_command():
                 return jsonify({
                     "status": "success",
                     "message": f"Screenshot, Path: {output_path}"
+                })
+            
+            case "get_all_pages_path":
+                all_pages_path = mini.app.get_all_pages_path()
+                return jsonify({
+                    "status": "success",
+                    "message": f"Screenshot, Path: {all_pages_path}"
                 })
 
             case "go_home":
@@ -99,13 +109,13 @@ def handle_command():
                     "message": "Redirect to"
                 })
 
-            case "evaluate":
-                msg_id = mini.app.evaluate(arguments["code"], arguments["params"], sync=False)
-                result = mini.app.get_async_response(msg_id, 5)
-                return jsonify({
-                    "status": "success",
-                    "message": f"Evaluate, Result: {result}"
-                })
+            # case "evaluate":
+            #     msg_id = mini.app.evaluate(arguments["code"], arguments["params"], sync=False)
+            #     result = mini.app.get_async_response(msg_id, 5)
+            #     return jsonify({
+            #         "status": "success",
+            #         "message": f"Evaluate, Result: {result}"
+            #     })
 
             case "call_method":
                 page = mini.app.get_current_page()
@@ -121,6 +131,22 @@ def handle_command():
                 return jsonify({
                     "status": "success",
                     "message": f"Page scroll to, Top: {arguments['top']}, Duration: {arguments['duration']}"
+                })
+            
+            case "page_get_data":
+                page = mini.app.get_current_page()
+                return jsonify({
+                    "status": "success",
+                    "message": f"Data: {page.data}"
+                })
+            
+            case "page_set_data":
+                page = mini.app.get_current_page()
+                data = page.data
+                data[arguments['key']] = arguments['value']
+                return jsonify({
+                    "status": "success",
+                    "message": f"Data: {page.data}"
                 })
 
             case "tap":
@@ -190,13 +216,13 @@ def handle_command():
                 return jsonify({
                     "status": "error",
                     "message": f"Unknown command: {command['name']}"
-                }), 400
+                })
 
     except Exception as e:
         return jsonify({
             "status": "error",
             "message": str(e)
-        }), 400
+        })
 
 if __name__ == "__main__":
-    app.run(host='127.0.0.1', port=9188)
+    app.run(host=HOST, port=PORT)

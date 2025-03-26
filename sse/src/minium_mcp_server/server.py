@@ -11,6 +11,9 @@ from mcp import types
 from typing import Any
 import mcp.server.stdio
 
+HOST = 'http://192.168.3.42'
+PORT = 9188
+
 # reconfigure UnicodeEncodeError prone default (i.e. windows-1252) to utf-8
 if sys.platform == "win32" and os.environ.get('PYTHONIOENCODING') is None:
     sys.stdin.reconfigure(encoding="utf-8")
@@ -64,6 +67,15 @@ async def main():
                     "properties": {},
                     "required": [],
                 },
+            ),
+            types.Tool(
+                name="get_all_pages_path",
+                description="Get paths of all pages",
+                inputSchema={
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                }
             ),
             types.Tool(
                 name="go_home",
@@ -130,18 +142,18 @@ async def main():
                     "required": ["path"],
                 }
             ),
-            types.Tool(
-                name="evaluate",
-                description="Evaluate a JavaScript(es5) code",
-                inputSchema={
-                    "type": "object",
-                    "properties": {
-                        "code": {"type": "string", "description": "Script code"},
-                        "params": {"type": "string", "description": "Script parameters"},
-                    },
-                    "required": ["code", "params"],
-                }
-            ),
+            # types.Tool(
+            #     name="evaluate",
+            #     description="Evaluate a JavaScript(es5) code",
+            #     inputSchema={
+            #         "type": "object",
+            #         "properties": {
+            #             "code": {"type": "string", "description": "Script code"},
+            #             "params": {"type": "string", "description": "Script parameters"},
+            #         },
+            #         "required": ["code", "params"],
+            #     }
+            # ),
             types.Tool(
                 name="call_method",
                 description="Call a method of page",
@@ -164,6 +176,27 @@ async def main():
                         "duration": {"type": "number", "description": "Scroll duration"},
                     },
                     "required": ["top", "duration"],
+                }
+            ),
+            types.Tool(
+                name="page_get_data",
+                description="Get data of an page",
+                inputSchema={
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                }
+            ),
+            types.Tool(
+                name="page_set_data",
+                description="Set data of an page",
+                inputSchema={
+                    "type": "object",
+                    "properties": {
+                        "key": {"type": "string", "description": "key of data"},
+                        "value": {"type": "any", "description": "value of data"},
+                    },
+                    "required": [],
                 }
             ),
             types.Tool(
@@ -260,7 +293,7 @@ async def main():
         try:
             # Send HTTP request to web server
             response = requests.post(
-                "http://127.0.0.1:9188/api/command",
+                f"{HOST}:{PORT}/api/command",
                 json={
                     "name": name,
                     "arguments": arguments or {}
