@@ -33,6 +33,7 @@ async def main(project_path: str):
         "dev_tool_path": dev_tool_path,
         "debug_mode": "error"
     })
+    mini.app.enable_log()
 
     @server.list_tools()
     async def handle_list_tools() -> list[types.Tool]:
@@ -64,6 +65,15 @@ async def main(project_path: str):
                     "properties": {},
                     "required": [],
                 },
+            ),
+            types.Tool(
+                name="get_all_pages_path",
+                description="Get paths of all pages",
+                inputSchema={
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                }
             ),
             types.Tool(
                 name="go_home",
@@ -130,18 +140,18 @@ async def main(project_path: str):
                     "required": ["path"],
                 }
             ),
-            types.Tool(
-                name="evaluate",
-                description="Evaluate a JavaScript(es5) code",
-                inputSchema={
-                    "type": "object",
-                    "properties": {
-                        "code": {"type": "string", "description": "Script code"},
-                        "params": {"type": "string", "description": "Script parameters"},
-                    },
-                    "required": ["code", "params"],
-                }
-            ),
+            # types.Tool(
+            #     name="evaluate",
+            #     description="Evaluate a JavaScript(es5) code",
+            #     inputSchema={
+            #         "type": "object",
+            #         "properties": {
+            #             "code": {"type": "string", "description": "Script code"},
+            #             "params": {"type": "string", "description": "Script parameters"},
+            #         },
+            #         "required": ["code", "params"],
+            #     }
+            # ),
             types.Tool(
                 name="call_method",
                 description="Call a method of page",
@@ -164,6 +174,27 @@ async def main(project_path: str):
                         "duration": {"type": "number", "description": "Scroll duration"},
                     },
                     "required": ["top", "duration"],
+                }
+            ),
+            types.Tool(
+                name="page_get_data",
+                description="Get data of an page",
+                inputSchema={
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                }
+            ),
+            types.Tool(
+                name="page_set_data",
+                description="Set data of an page",
+                inputSchema={
+                    "type": "object",
+                    "properties": {
+                        "key": {"type": "string", "description": "key of data"},
+                        "value": {"type": "any", "description": "value of data"},
+                    },
+                    "required": [],
                 }
             ),
             types.Tool(
@@ -271,6 +302,9 @@ async def main(project_path: str):
                         os.remove(output_path)
                     mini.app.screen_shot(output_path)
                     return [types.TextContent(type="text", text=f"Success: Screenshot, Path: {output_path}")]
+                case "get_all_pages_path":
+                    all_pages_path = mini.app.get_all_pages_path()
+                    return [types.TextContent(type="text", text=f"Screenshot, Path: {all_pages_path}")]
 
                 case "go_home":
                     mini.app.go_home()
@@ -301,6 +335,14 @@ async def main(project_path: str):
                     page = mini.app.get_current_page()
                     page.scroll_to(arguments["top"], arguments["duration"])
                     return [types.TextContent(type="text", text=f"Success: Page scroll to, Top: {arguments['top']}, Duration: {arguments['duration']}")]
+                case "page_get_data":
+                    page = mini.app.get_current_page()
+                    return [types.TextContent(type="text", text=f"Data: {page.data}")]
+                case "page_set_data":
+                    page = mini.app.get_current_page()
+                    data = page.data
+                    data[arguments['key']] = arguments['value']
+                    return [types.TextContent(type="text", text=f"Data: {page.data}")]
 
                 case "tap":
                     page = mini.app.get_current_page()
