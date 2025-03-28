@@ -40,7 +40,7 @@ async def main(project_path: str):
         """List available tools"""
         return [
             types.Tool(
-                name="get_system_info",
+                name="minium_get_system_info",
                 description="Get system info",
                 inputSchema={
                     "type": "object",
@@ -49,7 +49,7 @@ async def main(project_path: str):
                 }
             ),
             types.Tool(
-                name="shutdown",
+                name="minium_shutdown",
                 description="Shutdown the developer tool",
                 inputSchema={
                     "type": "object",
@@ -58,7 +58,7 @@ async def main(project_path: str):
                 }
             ),
             types.Tool(
-                name="screen_shot",
+                name="minium_screen_shot",
                 description="Take a screenshot of the current page",
                 inputSchema={
                     "type": "object",
@@ -67,7 +67,7 @@ async def main(project_path: str):
                 },
             ),
             types.Tool(
-                name="get_all_pages_path",
+                name="minium_get_all_pages_path",
                 description="Get paths of all pages",
                 inputSchema={
                     "type": "object",
@@ -76,7 +76,7 @@ async def main(project_path: str):
                 }
             ),
             types.Tool(
-                name="go_home",
+                name="minium_go_home",
                 description="Go to the home page",
                 inputSchema={
                     "type": "object",
@@ -85,7 +85,7 @@ async def main(project_path: str):
                 }
             ),
             types.Tool(
-                name="navigate_to",
+                name="minium_navigate_to",
                 description="Navigate to a page",
                 inputSchema={
                     "type": "object",
@@ -97,7 +97,7 @@ async def main(project_path: str):
                 }
             ),
             types.Tool(
-                name="navigate_back",
+                name="minium_navigate_back",
                 description="Navigate back to the previous page",
                 inputSchema={
                     "type": "object",
@@ -106,7 +106,7 @@ async def main(project_path: str):
                 }
             ),
             types.Tool(
-                name="switch_tab",
+                name="minium_switch_tab",
                 description="Switch to a tab",
                 inputSchema={
                     "type": "object",
@@ -117,7 +117,7 @@ async def main(project_path: str):
                 }
             ),
             types.Tool(
-                name="redirect_to",
+                name="minium_redirect_to",
                 description="Redirect to a page",
                 inputSchema={
                     "type": "object",
@@ -129,7 +129,7 @@ async def main(project_path: str):
                 }
             ),
             types.Tool(
-                name="relaunch",
+                name="minium_relaunch",
                 description="Close all pages and open a new one",
                 inputSchema={
                     "type": "object",
@@ -153,7 +153,7 @@ async def main(project_path: str):
             #     }
             # ),
             types.Tool(
-                name="call_method",
+                name="minium_call_method",
                 description="Call a method of page",
                 inputSchema={
                     "type": "object",
@@ -165,7 +165,7 @@ async def main(project_path: str):
                 }
             ),
             types.Tool(
-                name="page_scroll_to",
+                name="minium_page_scroll_to",
                 description="Scroll to the specified position of an page",
                 inputSchema={
                     "type": "object",
@@ -177,7 +177,7 @@ async def main(project_path: str):
                 }
             ),
             types.Tool(
-                name="page_get_data",
+                name="minium_page_get_data",
                 description="Get data of an page",
                 inputSchema={
                     "type": "object",
@@ -186,7 +186,7 @@ async def main(project_path: str):
                 }
             ),
             types.Tool(
-                name="page_set_data",
+                name="minium_page_set_data",
                 description="Set data of an page",
                 inputSchema={
                     "type": "object",
@@ -198,7 +198,7 @@ async def main(project_path: str):
                 }
             ),
             types.Tool(
-                name="tap",
+                name="minium_tap",
                 description="Tap an element",
                 inputSchema={
                     "type": "object",
@@ -209,7 +209,7 @@ async def main(project_path: str):
                 }
             ),
             types.Tool(
-                name="long_press",
+                name="minium_long_press",
                 description="Long press an element",
                 inputSchema={
                     "type": "object",
@@ -220,7 +220,7 @@ async def main(project_path: str):
                 }
             ),
             types.Tool(
-                name="move",
+                name="minium_move",
                 description="Perform gestures on the element",
                 inputSchema={
                     "type": "object",
@@ -233,7 +233,7 @@ async def main(project_path: str):
                 }
             ),
             types.Tool(
-                name="input",
+                name="minium_input",
                 description="Input text to an element",
                 inputSchema={
                     "type": "object",
@@ -245,7 +245,7 @@ async def main(project_path: str):
                 }
             ),
             types.Tool(
-                name="switch",
+                name="minium_switch",
                 description="Change the switch status of an element",
                 inputSchema={
                     "type": "object",
@@ -256,7 +256,7 @@ async def main(project_path: str):
                 }
             ),
             types.Tool(
-                name="slide_to",
+                name="minium_slide_to",
                 description="Slide to the specified position of an element",
                 inputSchema={
                     "type": "object",
@@ -268,7 +268,7 @@ async def main(project_path: str):
                 }
             ),
             types.Tool(
-                name="pick",
+                name="minium_pick",
                 description="Pick an option of an element",
                 inputSchema={
                     "type": "object",
@@ -288,7 +288,7 @@ async def main(project_path: str):
         """Handle tool execution requests"""
         logger.info(f"Received call tool request: {name} with args: {arguments}")
         try:
-            match name:
+            match name.replace("minium_", ""):
                 case "get_system_info":
                     return [types.TextContent(type="text", text=f"Error: {mini.get_system_info()}")]
                 case "shutdown":
