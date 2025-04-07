@@ -143,7 +143,7 @@ def handle_command():
             case "page_set_data":
                 page = mini.app.get_current_page()
                 data = page.data
-                data[arguments['key']] = arguments['value']
+                data[arguments['key']] = json.load(arguments['value'])
                 return jsonify({
                     "status": "success",
                     "message": f"Data: {page.data}"

@@ -11,7 +11,7 @@ from mcp import types
 from typing import Any
 import mcp.server.stdio
 
-HOST = 'http://192.168.3.42'
+HOST = 'http://127.0.0.1'
 PORT = 9188
 
 # reconfigure UnicodeEncodeError prone default (i.e. windows-1252) to utf-8
@@ -194,9 +194,9 @@ async def main():
                     "type": "object",
                     "properties": {
                         "key": {"type": "string", "description": "key of data"},
-                        "value": {"type": "any", "description": "value of data"},
+                        "value": {"type": "string", "description": "value of data"},
                     },
-                    "required": [],
+                    "required": ["key", "value"],
                 }
             ),
             types.Tool(
