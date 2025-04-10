@@ -11,8 +11,8 @@ from mcp import types
 from typing import Any
 import mcp.server.stdio
 
-# HOST = 'http://127.0.0.1'
-HOST = 'http://192.168.3.42'
+HOST = 'http://127.0.0.1'
+# HOST = 'http://192.168.3.42'
 PORT = 9188
 
 # reconfigure UnicodeEncodeError prone default (i.e. windows-1252) to utf-8

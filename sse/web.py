@@ -3,6 +3,7 @@ import json
 import os
 import sys
 import minium
+import base64
 
 app = Flask(__name__)
 print("Starting Minium MCP Web Server")
@@ -75,6 +76,8 @@ def handle_command():
                     image = f.read()
                     # 返回base64编码的图片
                     image_base64 = base64.b64encode(image).decode('utf-8')
+                # 删除截图
+                os.remove(output_path)
                 return jsonify({
                     "status": "success",
                     "type": "image",

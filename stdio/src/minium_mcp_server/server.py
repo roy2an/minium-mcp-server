@@ -2,7 +2,7 @@ import os
 import sys
 import logging
 import minium
-import socket
+import base64
 from mcp.server import NotificationOptions, Server
 from mcp.server.models import InitializationOptions
 from mcp import types
@@ -315,6 +315,8 @@ async def main(project_path: str):
                         image = f.read()
                         # 返回base64编码的图片
                         image_base64 = base64.b64encode(image).decode('utf-8')
+                    # 删除截图
+                    os.remove(output_path)
                     return [types.ImageContent(type="image", mimeType="image/png", data=image_base64)]
                 case "get_all_pages_path":
                     all_pages_path = mini.app.get_all_pages_path()
