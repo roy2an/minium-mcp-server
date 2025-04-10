@@ -31,12 +31,20 @@ def handle_command():
                     raise Exception("Unsupported operating system")
 
                 project_path = arguments['path']
-                mini = minium.Minium({
-                    "project_path": project_path,
-                    "dev_tool_path": dev_tool_path,
-                    "debug_mode": "error"
-                })
-                mini.app.enable_log()
+                try:
+                    mini = minium.Minium({
+                        "project_path": project_path,
+                        "dev_tool_path": dev_tool_path,
+                        "debug_mode": "error"
+                    })
+                    mini.app.enable_log()
+                except Exception as e:
+                    # 重试
+                    return jsonify({
+                        "status": "error",
+                        "message": str(e)
+                    })
+
                 return jsonify({
                     "status": "success",
                     "message": "Started"
@@ -62,9 +70,15 @@ def handle_command():
                 if os.path.isfile(output_path):
                     os.remove(output_path)
                 mini.app.screen_shot(output_path)
+                # 获取截图
+                with open(output_path, "rb") as f:
+                    image = f.read()
+                    # 返回base64编码的图片
+                    image_base64 = base64.b64encode(image).decode('utf-8')
                 return jsonify({
                     "status": "success",
-                    "message": f"Screenshot, Path: {output_path}"
+                    "type": "image",
+                    "data": image_base64
                 })
             
             case "get_all_pages_path":
@@ -131,6 +145,13 @@ def handle_command():
                 return jsonify({
                     "status": "success",
                     "message": f"Page scroll to, Top: {arguments['top']}, Duration: {arguments['duration']}"
+                })
+
+            case "page_get_wxml":
+                page = mini.app.get_current_page()
+                return jsonify({
+                    "status": "success",
+                    "message": f"WXML: {page.wxml}"
                 })
             
             case "page_get_data":

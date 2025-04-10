@@ -11,7 +11,8 @@ from mcp import types
 from typing import Any
 import mcp.server.stdio
 
-HOST = 'http://127.0.0.1'
+# HOST = 'http://127.0.0.1'
+HOST = 'http://192.168.3.42'
 PORT = 9188
 
 # reconfigure UnicodeEncodeError prone default (i.e. windows-1252) to utf-8
@@ -179,6 +180,15 @@ async def main():
                 }
             ),
             types.Tool(
+                name="page_get_wxml",
+                description="Get Dom structure of an page",
+                inputSchema={
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                }
+            ),
+            types.Tool(
                 name="minium_page_get_data",
                 description="Get data of an page",
                 inputSchema={
@@ -307,6 +317,9 @@ async def main():
             response_data = response.json()
             if response_data.get("status") == "error":
                 raise Exception(response_data.get("message", "Unknown error"))
+
+            if response_data.get("type") == "image":
+                return [types.ImageContent(type="image", mimeType="image/png", data=response_data.get("data"))]
                 
             return [types.TextContent(type="text", text=response_data.get("message"))]
             

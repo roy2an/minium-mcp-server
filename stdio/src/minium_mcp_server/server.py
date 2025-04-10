@@ -177,6 +177,15 @@ async def main(project_path: str):
                 }
             ),
             types.Tool(
+                name="page_get_wxml",
+                description="Get Dom structure of an page",
+                inputSchema={
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                }
+            ),
+            types.Tool(
                 name="minium_page_get_data",
                 description="Get data of an page",
                 inputSchema={
@@ -301,7 +310,12 @@ async def main(project_path: str):
                     if os.path.isfile(output_path):
                         os.remove(output_path)
                     mini.app.screen_shot(output_path)
-                    return [types.TextContent(type="text", text=f"Success: Screenshot, Path: {output_path}")]
+                    # 获取截图
+                    with open(output_path, "rb") as f:
+                        image = f.read()
+                        # 返回base64编码的图片
+                        image_base64 = base64.b64encode(image).decode('utf-8')
+                    return [types.ImageContent(type="image", mimeType="image/png", data=image_base64)]
                 case "get_all_pages_path":
                     all_pages_path = mini.app.get_all_pages_path()
                     return [types.TextContent(type="text", text=f"Screenshot, Path: {all_pages_path}")]
@@ -335,6 +349,9 @@ async def main(project_path: str):
                     page = mini.app.get_current_page()
                     page.scroll_to(arguments["top"], arguments["duration"])
                     return [types.TextContent(type="text", text=f"Success: Page scroll to, Top: {arguments['top']}, Duration: {arguments['duration']}")]
+                case "page_get_wxml":
+                    page = mini.app.get_current_page()
+                    return [types.TextContent(type="text", text=f"WXML: {page.wxml}")]
                 case "page_get_data":
                     page = mini.app.get_current_page()
                     return [types.TextContent(type="text", text=f"Data: {page.data}")]
