@@ -76,6 +76,17 @@ async def main(project_path: str):
                 }
             ),
             types.Tool(
+                name="minium_get_navigate_method_of_page",
+                description="Get navigate method of a page",
+                inputSchema={
+                    "type": "object",
+                    "properties": {
+                        "path": {"type": "string", "description": "Page path"},
+                    },
+                    "required": ["path"],
+                }
+            ),
+            types.Tool(
                 name="minium_go_home",
                 description="Go to the home page",
                 inputSchema={
@@ -318,9 +329,34 @@ async def main(project_path: str):
                     # 删除截图
                     os.remove(output_path)
                     return [types.ImageContent(type="image", mimeType="image/png", data=image_base64)]
+                
                 case "get_all_pages_path":
                     all_pages_path = mini.app.get_all_pages_path()
-                    return [types.TextContent(type="text", text=f"Screenshot, Path: {all_pages_path}")]
+                    with open(os.path.join(project_path, "app.json"), "r", encoding="utf-8") as file:  # 建议指定 encoding
+                        app = json.load(file)  # 解析 JSON 文件 → Python 字典/列表
+                        tabbar = app.get('tabBar').get('list')
+                    result = []
+                    for path in all_pages_path:
+                        if path in [item.get('pagePath') for item in tabbar]:
+                            result.append({
+                                "path": f"/{path}",
+                                "method": "switch_tab"
+                            })
+                        else:
+                            result.append({
+                                "path": f"/{path}",
+                                "method": "navigate_to"
+                            })
+                    return [types.TextContent(type="text", text=f"Get all pages path, Path: {result}")]
+                case "get_navigate_method_of_page":
+                    with open(os.path.join(project_path, "app.json"), "r", encoding="utf-8") as file:  # 建议指定 encoding
+                        app = json.load(file)  # 解析 JSON 文件 → Python 字典/列表
+                        tabbar = app.get('tabBar').get('list')
+                        print(tabbar)
+                        if arguments["path"] in [item.get('pagePath') for item in tabbar]:
+                            return [types.TextContent(type="text", text=f"Success: switch_tab")]
+                        else:
+                            return [types.TextContent(type="text", text=f"Success: navigate_to")]
 
                 case "go_home":
                     mini.app.go_home()
