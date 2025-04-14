@@ -86,10 +86,41 @@ def handle_command():
             
             case "get_all_pages_path":
                 all_pages_path = mini.app.get_all_pages_path()
+                with open(os.path.join(project_path, "app.json"), "r", encoding="utf-8") as file:  # 建议指定 encoding
+                    app = json.load(file)  # 解析 JSON 文件 → Python 字典/列表
+                    tabbar = app.get('tabBar').get('list')
+                
+                result = []
+                for path in all_pages_path:
+                    if path in [item.get('pagePath') for item in tabbar]:
+                        result.append({
+                            "path": f"/{path}",
+                            "method": "switch_tab"
+                        })
+                    else:
+                        result.append({
+                            "path": f"/{path}",
+                            "method": "navigate_to"
+                        })
                 return jsonify({
                     "status": "success",
-                    "message": f"Screenshot, Path: {all_pages_path}"
+                    "message": f"Get all pages path, Path: {result}"
                 })
+            
+            case "get_navigate_method_of_page":
+                with open(os.path.join(project_path, "app.json"), "r", encoding="utf-8") as file:  # 建议指定 encoding
+                    app = json.load(file)  # 解析 JSON 文件 → Python 字典/列表
+                    tabbar = app.get('tabBar').get('list')
+                    if arguments["path"] in [item.get('pagePath') for item in tabbar]:
+                        return jsonify({
+                            "status": "success",
+                            "message": "switch_tab"
+                        })
+                    else:
+                        return jsonify({    
+                            "status": "success",
+                            "message": "navigate_to"
+                        })
 
             case "go_home":
                 mini.app.go_home()

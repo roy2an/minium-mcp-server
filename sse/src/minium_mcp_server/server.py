@@ -79,6 +79,17 @@ async def main():
                 }
             ),
             types.Tool(
+                name="minium_get_navigate_method_of_page",
+                description="Get navigate method of a page",
+                inputSchema={
+                    "type": "object",
+                    "properties": {
+                        "path": {"type": "string", "description": "Page path"},
+                    },
+                    "required": ["path"],
+                }
+            ),
+            types.Tool(
                 name="minium_go_home",
                 description="Go to the home page",
                 inputSchema={
