@@ -67,8 +67,8 @@ async def main(project_path: str):
                 },
             ),
             types.Tool(
-                name="minium_get_all_pages_path",
-                description="Get paths of all pages",
+                name="minium_get_all_pages_path_and_method",
+                description="Get paths of all pages and navigate method of each page",
                 inputSchema={
                     "type": "object",
                     "properties": {},
@@ -97,7 +97,7 @@ async def main(project_path: str):
             ),
             types.Tool(
                 name="minium_navigate_to",
-                description="Navigate to a page",
+                description="Navigate to a page. Please get path of all pages before using this tool.",
                 inputSchema={
                     "type": "object",
                     "properties": {
@@ -118,7 +118,7 @@ async def main(project_path: str):
             ),
             types.Tool(
                 name="minium_switch_tab",
-                description="Switch to a tab",
+                description="Switch to a tab. Please get path of all pages before using this tool.",
                 inputSchema={
                     "type": "object",
                     "properties": {
@@ -223,9 +223,12 @@ async def main(project_path: str):
                 inputSchema={
                     "type": "object",
                     "properties": {
-                        "element": {"type": "string", "description": "Element id"},
+                        "selector": {
+                            "type": "string", 
+                            "description": "CSS selector or XPath expression"
+                        },
                     },
-                    "required": ["element"],
+                    "required": ["selector"],
                 }
             ),
             types.Tool(
@@ -234,9 +237,12 @@ async def main(project_path: str):
                 inputSchema={
                     "type": "object",
                     "properties": {
-                        "element": {"type": "string", "description": "Element id"},
+                        "selector": {
+                            "type": "string", 
+                            "description": "CSS selector or XPath expression"
+                        },
                     },
-                    "required": ["element"],
+                    "required": ["selector"],
                 }
             ),
             types.Tool(
@@ -245,11 +251,20 @@ async def main(project_path: str):
                 inputSchema={
                     "type": "object",
                     "properties": {
-                        "element": {"type": "string", "description": "Element id"},
-                        "top": {"type": "number", "description": "Move to the top coordinate"},
-                        "left": {"type": "number", "description": "Move to the left coordinate"},
+                        "selector": {
+                            "type": "string", 
+                            "description": "CSS selector or XPath expression"
+                        },
+                        "top": {
+                            "type": "number",
+                            "description": "Move to the top coordinate"
+                        },
+                        "left": {
+                            "type": "number", 
+                            "description": "Move to the left coordinate"
+                        },
                     },
-                    "required": ["element", "top", "left"],
+                    "required": ["selector", "top", "left"],
                 }
             ),
             types.Tool(
@@ -258,10 +273,16 @@ async def main(project_path: str):
                 inputSchema={
                     "type": "object",
                     "properties": {
-                        "element": {"type": "string", "description": "Element id"},
-                        "text": {"type": "string", "description": "Text to input"},
+                        "selector": {
+                            "type": "string", 
+                            "description": "CSS selector or XPath expression"
+                        },
+                        "text": {
+                            "type": "string", 
+                            "description": "Text to input"
+                        },
                     },
-                    "required": ["element", "text"],
+                    "required": ["selector", "text"],
                 }
             ),
             types.Tool(
@@ -270,9 +291,12 @@ async def main(project_path: str):
                 inputSchema={
                     "type": "object",
                     "properties": {
-                        "element": {"type": "string", "description": "Element id"},
+                        "selector": {
+                            "type": "string", 
+                            "description": "CSS selector or XPath expression"
+                        },
                     },
-                    "required": ["element"],
+                    "required": ["selector"],
                 }
             ),
             types.Tool(
@@ -281,10 +305,16 @@ async def main(project_path: str):
                 inputSchema={
                     "type": "object",
                     "properties": {
-                        "element": {"type": "string", "description": "Element id"},
-                        "value": {"type": "number", "description": "Slide value"},
+                        "selector": {
+                            "type": "string", 
+                            "description": "CSS selector or XPath expression"
+                        },
+                        "value": {
+                            "type": "number", 
+                            "description": "Slide value"
+                        },
                     },
-                    "required": ["element", "value"],
+                    "required": ["selector", "value"],
                 }
             ),
             types.Tool(
@@ -293,10 +323,16 @@ async def main(project_path: str):
                 inputSchema={
                     "type": "object",
                     "properties": {
-                        "element": {"type": "string", "description": "Element id"},
-                        "option": {"type": "string", "description": "Option value"},
+                        "selector": {
+                            "type": "string", 
+                            "description": "CSS selector or XPath expression"
+                        },
+                        "option": {
+                            "type": "string", 
+                            "description": "Option value"
+                        },
                     },
-                    "required": ["element", "option"],
+                    "required": ["selector", "option"],
                 }
             )
         ]
@@ -330,7 +366,7 @@ async def main(project_path: str):
                     os.remove(output_path)
                     return [types.ImageContent(type="image", mimeType="image/png", data=image_base64)]
                 
-                case "get_all_pages_path":
+                case "get_all_pages_path_and_method":
                     all_pages_path = mini.app.get_all_pages_path()
                     with open(os.path.join(project_path, "app.json"), "r", encoding="utf-8") as file:  # 建议指定 encoding
                         app = json.load(file)  # 解析 JSON 文件 → Python 字典/列表
@@ -347,7 +383,7 @@ async def main(project_path: str):
                                 "path": f"/{path}",
                                 "method": "navigate_to"
                             })
-                    return [types.TextContent(type="text", text=f"Get all pages path, Path: {result}")]
+                    return [types.TextContent(type="text", text=f"```json\n{json.dumps(result, indent=4, ensure_ascii=False)}```")]
                 case "get_navigate_method_of_page":
                     with open(os.path.join(project_path, "app.json"), "r", encoding="utf-8") as file:  # 建议指定 encoding
                         app = json.load(file)  # 解析 JSON 文件 → Python 字典/列表
@@ -389,15 +425,26 @@ async def main(project_path: str):
                     return [types.TextContent(type="text", text=f"Success: Page scroll to, Top: {arguments['top']}, Duration: {arguments['duration']}")]
                 case "page_get_wxml":
                     page = mini.app.get_current_page()
-                    return [types.TextContent(type="text", text=f"WXML: {page.wxml}")]
+                    wxml = page.wxml
+                    # 分离wxml和css
+                    # 查询最后一个tag的位置
+                    last_tag_index = wxml.rfind("</")
+                    # 分割wxml和css
+                    wxml_content = wxml[:last_tag_index]
+                    css_content = wxml[last_tag_index:]
+                    first_tag_index = css_content.find(">")
+                    wxml_content += css_content[:first_tag_index+1]
+                    css_content = css_content[first_tag_index+1:]
+
+                    return [types.TextContent(type="text", text=f"```xml\n{wxml_content}```\n\n```css\n{css_content}```")]
                 case "page_get_data":
                     page = mini.app.get_current_page()
-                    return [types.TextContent(type="text", text=f"Data: {page.data}")]
+                    return [types.TextContent(type="text", text=f"```json\n{json.dumps(page.data, indent=4, ensure_ascii=False)}```")]
                 case "page_set_data":
                     page = mini.app.get_current_page()
                     data = page.data
                     data[arguments['key']] = arguments['value']
-                    return [types.TextContent(type="text", text=f"Data: {page.data}")]
+                    return [types.TextContent(type="text", text=f"```json\n{json.dumps(page.data, indent=4, ensure_ascii=False)}```")]
 
                 case "tap":
                     page = mini.app.get_current_page()

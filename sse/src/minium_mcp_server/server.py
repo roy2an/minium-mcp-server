@@ -70,8 +70,8 @@ async def main():
                 },
             ),
             types.Tool(
-                name="minium_get_all_pages_path",
-                description="Get paths of all pages",
+                name="minium_get_all_pages_path_and_method",
+                description="Get paths of all pages and navigate method of each page",
                 inputSchema={
                     "type": "object",
                     "properties": {},
@@ -100,7 +100,7 @@ async def main():
             ),
             types.Tool(
                 name="minium_navigate_to",
-                description="Navigate to a page",
+                description="Navigate to a page. Please get path of all pages before using this tool.",
                 inputSchema={
                     "type": "object",
                     "properties": {
@@ -121,7 +121,7 @@ async def main():
             ),
             types.Tool(
                 name="minium_switch_tab",
-                description="Switch to a tab",
+                description="Switch to a tab. Please get path of all pages before using this tool.",
                 inputSchema={
                     "type": "object",
                     "properties": {
@@ -226,9 +226,12 @@ async def main():
                 inputSchema={
                     "type": "object",
                     "properties": {
-                        "element": {"type": "string", "description": "Element id"},
+                        "selector": {
+                            "type": "string", 
+                            "description": "CSS selector or XPath expression"
+                        },
                     },
-                    "required": ["element"],
+                    "required": ["selector"],
                 }
             ),
             types.Tool(
@@ -237,9 +240,12 @@ async def main():
                 inputSchema={
                     "type": "object",
                     "properties": {
-                        "element": {"type": "string", "description": "Element id"},
+                        "selector": {
+                            "type": "string", 
+                            "description": "CSS selector or XPath expression"
+                        },
                     },
-                    "required": ["element"],
+                    "required": ["selector"],
                 }
             ),
             types.Tool(
@@ -248,11 +254,20 @@ async def main():
                 inputSchema={
                     "type": "object",
                     "properties": {
-                        "element": {"type": "string", "description": "Element id"},
-                        "top": {"type": "number", "description": "Move to the top coordinate"},
-                        "left": {"type": "number", "description": "Move to the left coordinate"},
+                        "selector": {
+                            "type": "string", 
+                            "description": "CSS selector or XPath expression"
+                        },
+                        "top": {
+                            "type": "number",
+                            "description": "Move to the top coordinate"
+                        },
+                        "left": {
+                            "type": "number", 
+                            "description": "Move to the left coordinate"
+                        },
                     },
-                    "required": ["element", "top", "left"],
+                    "required": ["selector", "top", "left"],
                 }
             ),
             types.Tool(
@@ -261,10 +276,16 @@ async def main():
                 inputSchema={
                     "type": "object",
                     "properties": {
-                        "element": {"type": "string", "description": "Element id"},
-                        "text": {"type": "string", "description": "Text to input"},
+                        "selector": {
+                            "type": "string", 
+                            "description": "CSS selector or XPath expression"
+                        },
+                        "text": {
+                            "type": "string", 
+                            "description": "Text to input"
+                        },
                     },
-                    "required": ["element", "text"],
+                    "required": ["selector", "text"],
                 }
             ),
             types.Tool(
@@ -273,9 +294,12 @@ async def main():
                 inputSchema={
                     "type": "object",
                     "properties": {
-                        "element": {"type": "string", "description": "Element id"},
+                        "selector": {
+                            "type": "string", 
+                            "description": "CSS selector or XPath expression"
+                        },
                     },
-                    "required": ["element"],
+                    "required": ["selector"],
                 }
             ),
             types.Tool(
@@ -284,10 +308,16 @@ async def main():
                 inputSchema={
                     "type": "object",
                     "properties": {
-                        "element": {"type": "string", "description": "Element id"},
-                        "value": {"type": "number", "description": "Slide value"},
+                        "selector": {
+                            "type": "string", 
+                            "description": "CSS selector or XPath expression"
+                        },
+                        "value": {
+                            "type": "number", 
+                            "description": "Slide value"
+                        },
                     },
-                    "required": ["element", "value"],
+                    "required": ["selector", "value"],
                 }
             ),
             types.Tool(
@@ -296,10 +326,16 @@ async def main():
                 inputSchema={
                     "type": "object",
                     "properties": {
-                        "element": {"type": "string", "description": "Element id"},
-                        "option": {"type": "string", "description": "Option value"},
+                        "selector": {
+                            "type": "string", 
+                            "description": "CSS selector or XPath expression"
+                        },
+                        "option": {
+                            "type": "string", 
+                            "description": "Option value"
+                        },
                     },
-                    "required": ["element", "option"],
+                    "required": ["selector", "option"],
                 }
             )
         ]

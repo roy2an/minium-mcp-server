@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 import json
+from xml.dom import minidom
 import os
 import sys
 import minium
@@ -84,7 +85,7 @@ def handle_command():
                     "data": image_base64
                 })
             
-            case "get_all_pages_path":
+            case "get_all_pages_path_and_method":
                 all_pages_path = mini.app.get_all_pages_path()
                 with open(os.path.join(project_path, "app.json"), "r", encoding="utf-8") as file:  # 建议指定 encoding
                     app = json.load(file)  # 解析 JSON 文件 → Python 字典/列表
@@ -104,7 +105,7 @@ def handle_command():
                         })
                 return jsonify({
                     "status": "success",
-                    "message": f"Get all pages path, Path: {result}"
+                    "message": f"```json\n{json.dumps(result, indent=4, ensure_ascii=False)}```"
                 })
             
             case "get_navigate_method_of_page":
@@ -183,16 +184,29 @@ def handle_command():
 
             case "page_get_wxml":
                 page = mini.app.get_current_page()
+                wxml = page.wxml
+                # 分离wxml和css
+                # 查询最后一个tag的位置
+                last_tag_index = wxml.rfind("</")
+                # 分割wxml和css
+                wxml_content = wxml[:last_tag_index]
+                css_content = wxml[last_tag_index:]
+                first_tag_index = css_content.find(">")
+                wxml_content += css_content[:first_tag_index+1]
+                css_content = css_content[first_tag_index+1:]
+                
+                # 格式化输出
+
                 return jsonify({
                     "status": "success",
-                    "message": f"WXML: {page.wxml}"
+                    "message": f"```xml\n{wxml_content}```\n\n```css\n{css_content}```"
                 })
             
             case "page_get_data":
                 page = mini.app.get_current_page()
                 return jsonify({
                     "status": "success",
-                    "message": f"Data: {page.data}"
+                    "message": f"```json\n{page.data}```"
                 })
             
             case "page_set_data":
@@ -201,12 +215,12 @@ def handle_command():
                 data[arguments['key']] = json.load(arguments['value'])
                 return jsonify({
                     "status": "success",
-                    "message": f"Data: {page.data}"
+                    "message": f"```json\n{page.data}```"
                 })
 
             case "tap":
                 page = mini.app.get_current_page()
-                el = page.get_element(arguments["element"])
+                el = page.get_element(arguments["selector"])
                 el.tap()
                 return jsonify({
                     "status": "success",
@@ -215,7 +229,7 @@ def handle_command():
 
             case "long_press":
                 page = mini.app.get_current_page()
-                el = page.get_element(arguments["element"])
+                el = page.get_element(arguments["selector"])
                 el.long_press()
                 return jsonify({
                     "status": "success",
@@ -224,7 +238,7 @@ def handle_command():
 
             case "move":
                 page = mini.app.get_current_page()
-                el = page.get_element(arguments["element"])
+                el = page.get_element(arguments["selector"])
                 el.move(arguments["left"], arguments["top"])
                 return jsonify({
                     "status": "success",
@@ -233,7 +247,7 @@ def handle_command():
 
             case "input":
                 page = mini.app.get_current_page()
-                el = page.get_element(arguments["element"])
+                el = page.get_element(arguments["selector"])
                 el.input(arguments["text"])
                 return jsonify({
                     "status": "success",
@@ -242,7 +256,7 @@ def handle_command():
 
             case "switch":
                 page = mini.app.get_current_page()
-                el = page.get_element(arguments["element"])
+                el = page.get_element(arguments["selector"])
                 el.switch()
                 return jsonify({
                     "status": "success",
@@ -251,7 +265,7 @@ def handle_command():
 
             case "slide_to":
                 page = mini.app.get_current_page()
-                el = page.get_element(arguments["element"])
+                el = page.get_element(arguments["selector"])
                 el.slide_to(arguments["value"])
                 return jsonify({
                     "status": "success",
@@ -260,7 +274,7 @@ def handle_command():
 
             case "pick":
                 page = mini.app.get_current_page()
-                el = page.get_element(arguments["element"])
+                el = page.get_element(arguments["selector"])
                 el.pick(arguments["option"])
                 return jsonify({
                     "status": "success",
