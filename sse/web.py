@@ -49,7 +49,7 @@ def handle_command():
 
                 return jsonify({
                     "status": "success",
-                    "message": "Started"
+                    "message": "Opened"
                 })
 
             case "get_system_info":
@@ -96,12 +96,12 @@ def handle_command():
                     if path in [item.get('pagePath') for item in tabbar]:
                         result.append({
                             "path": f"/{path}",
-                            "method": "switch_tab"
+                            "method": "minium_switch_tab"
                         })
                     else:
                         result.append({
                             "path": f"/{path}",
-                            "method": "navigate_to"
+                            "method": "minium_navigate_to"
                         })
                 return jsonify({
                     "status": "success",
@@ -115,12 +115,12 @@ def handle_command():
                     if arguments["path"] in [item.get('pagePath') for item in tabbar]:
                         return jsonify({
                             "status": "success",
-                            "message": "switch_tab"
+                            "message": "minium_switch_tab"
                         })
                     else:
                         return jsonify({    
                             "status": "success",
-                            "message": "navigate_to"
+                            "message": "minium_navigate_to"
                         })
 
             case "go_home":
@@ -131,7 +131,10 @@ def handle_command():
                 })
 
             case "navigate_to":
-                mini.app.navigate_to(arguments["path"], arguments["query"])
+                # 如果arguments中没有params，则默认为空字符串
+                if arguments.get("params") is None:
+                    arguments["params"] = {}
+                mini.app.navigate_to(arguments["path"], arguments["params"])
                 return jsonify({
                     "status": "success",
                     "message": "Navigate to"
@@ -152,7 +155,9 @@ def handle_command():
                 })
 
             case "redirect_to":
-                mini.app.redirect_to(arguments["path"], arguments["query"])
+                if arguments.get("params") is None:
+                    arguments["params"] = {}
+                mini.app.redirect_to(arguments["path"], arguments["params"])
                 return jsonify({
                     "status": "success",
                     "message": "Redirect to"
@@ -167,6 +172,8 @@ def handle_command():
             #     })
 
             case "call_method":
+                if arguments.get("params") is None:
+                    arguments["params"] = {}
                 page = mini.app.get_current_page()
                 result = page.call_method(arguments["method"], arguments["params"])
                 return jsonify({
@@ -199,7 +206,27 @@ def handle_command():
 
                 return jsonify({
                     "status": "success",
-                    "message": f"```xml\n{wxml_content}```\n\n```css\n{css_content}```"
+                    "message": f"```xml\n{wxml_content}```"
+                })
+
+            case "page_get_css":
+                page = mini.app.get_current_page()
+                wxml = page.wxml
+                # 分离wxml和css
+                # 查询最后一个tag的位置
+                last_tag_index = wxml.rfind("</")
+                # 分割wxml和css
+                wxml_content = wxml[:last_tag_index]
+                css_content = wxml[last_tag_index:]
+                first_tag_index = css_content.find(">")
+                wxml_content += css_content[:first_tag_index+1]
+                css_content = css_content[first_tag_index+1:]
+                
+                # 格式化输出
+
+                return jsonify({
+                    "status": "success",
+                    "message": f"```css\n{css_content}```"
                 })
             
             case "page_get_data":
