@@ -39,7 +39,7 @@ async def main():
                     "properties": {
                         "path": {"type": "string", "description": "Project path"},
                     },
-                    "required": [],
+                    "required": ["path"],
                 }
             ),
             types.Tool(
