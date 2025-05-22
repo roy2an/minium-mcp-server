@@ -45,7 +45,7 @@ On Windows: `%APPDATA%/Claude/claude_desktop_config.json`
       "command": "uv",
       "args": [
         "--directory",
-        "--path--/minium_mcp_server/server",
+        "--path--/minium_mcp_server/stdio",
         "run",
         "minium-mcp-server",
         "--path",
@@ -106,7 +106,7 @@ experience, we strongly recommend using the [MCP Inspector](https://github.com/m
 You can launch the MCP Inspector via [`npm`](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) with this command:
 
 ```bash
-npx @modelcontextprotocol/inspector uv --directory --path--/minium_mcp_server/server run minium-mcp-server --path --project-path--
+npx @modelcontextprotocol/inspector uv --directory --path--/minium_mcp_server/stdio run minium-mcp-server --path --project-path--
 ```
 
 
