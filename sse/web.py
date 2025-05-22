@@ -1,6 +1,5 @@
 from flask import Flask, request, jsonify
 import json
-from xml.dom import minidom
 import os
 import sys
 import minium
@@ -13,6 +12,15 @@ mini = None
 project_path = ''
 HOST = '0.0.0.0'
 PORT = 9188
+
+def mini_log_added(message):
+    """
+    小程序 log 监听回调函数
+    将小程序的 log 格式化然后保存起来
+    :param message: {"type": "log|warn|error", "args": [str, ..., ]}
+    :return:
+    """
+    print({message['args']})
 
 @app.route('/api/command', methods=['POST'])
 def handle_command():
@@ -40,6 +48,7 @@ def handle_command():
                         "debug_mode": "error"
                     })
                     mini.app.enable_log()
+                    mini.app.add_observer("App.logAdded", mini_log_added)
                 except Exception as e:
                     # 重试
                     return jsonify({
