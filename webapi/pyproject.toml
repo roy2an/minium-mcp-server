@@ -1,0 +1,16 @@
+[project]
+name = "minium-mcp-server"
+version = "0.1.0"
+description = "A MCP server project"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [ "mcp>=1.4.1", "minium", "flask"]
+[[project.authors]]
+name = "roy.yan"
+
+[build-system]
+requires = [ "hatchling",]
+build-backend = "hatchling.build"
+
+[project.scripts]
+minium-mcp-server = "minium_mcp_server:main"
